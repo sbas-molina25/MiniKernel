@@ -34,7 +34,7 @@ void *generadorProcesos(void *arg)
         proceso.state = READY;
         pthread_mutex_lock(&mutexQueue); // bloquea la cola
         enqueue(&readyQueue, proceso);
-        printf("GENERADOR: Proceso %d creado con burst = %d\n", proceso.pid, proceso.burst_time);
+        printf("\nGENERADOR: Proceso %d creado, con burst = %d\n", proceso.pid, proceso.burst_time);
         pthread_cond_signal(&condicionQueue); // despierta una cpu
         pthread_mutex_unlock(&mutexQueue);    // desbloquea la cola
     }

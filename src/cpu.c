@@ -25,7 +25,7 @@ void *cpu_run(void *arg)
         pcb_t proceso = dequeue(&readyQueue); // saca un proceso de la cola
         pthread_mutex_unlock(&mutexQueue);    // quita el bloqueo del mutex
         proceso.state = RUNNING;              // cambia el estado del proceso a RUNNING
-        printf("CPU: %d Ejecutando proceso %d\n", idCPU, proceso.pid);
+        printf("\nCPU: %d Ejecutando proceso %d\n", idCPU, proceso.pid);
         sleep(QUANTUM);                    // aqui se simula la ejecucion del proceso
         proceso.remaining_time -= QUANTUM; // reduce el tiempo restante
 
@@ -33,12 +33,12 @@ void *cpu_run(void *arg)
         {
             proceso.state = FINISHED; // cambia el estado del proceso a FINISHED
             procesosTerminados++;     // suma al contador de procesos terminados
-            printf("CPU: %d termino el proceso %d\n", idCPU, proceso.pid);
+            printf("\nCPU: %d termino el proceso %d\n", idCPU, proceso.pid);
         }
         else // si todavia no termina, lo vuelve a poner en readyQueue
         {
             proceso.state = READY;
-            printf("CPU: %d Proceso %d restante: %d\n", idCPU, proceso.pid, proceso.remaining_time);
+            printf("\nCPU: %d Proceso %d restante: %d\n", idCPU, proceso.pid, proceso.remaining_time);
             pthread_mutex_lock(&mutexQueue);
             enqueue(&readyQueue, proceso);        // el proceso se vuelve a ingrear en la cola
             pthread_cond_signal(&condicionQueue); // despierta a otra CPU que estaba esperando
