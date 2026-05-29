@@ -1,0 +1,16 @@
+CC=gcc
+
+CFLAGS=-Wall -pthread
+
+SRC=src/main.c src/queue.c src/cpu.c src/metrics.c
+
+OUT=minikernel.exe
+
+all:
+	$(CC) $(SRC) -o $(OUT) $(CFLAGS)
+
+run:
+	.\$(OUT)
+
+clean:
+	rm -f $(OUT)
