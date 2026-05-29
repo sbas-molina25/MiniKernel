@@ -3,23 +3,25 @@
 
 #include "pcb.h"
 
-typedef struct node {
-    pcb_t process;
-    struct node* next;
-} node_t;
+typedef struct nodo
+{
+    pcb_t proceso;
+    struct nodo *siguiente;
+} nodo_t;
 
-typedef struct {
-    node_t* front;
-    node_t* rear;
+typedef struct
+{
+    nodo_t *inicio;
+    nodo_t *final;
     int size;
 } queue_t;
 
-void init_queue(queue_t* q);
+void iniciarCola(queue_t *cola);
 
-void enqueue(queue_t* q, pcb_t process);
+void enqueue(queue_t *cola, pcb_t proceso);
 
-pcb_t dequeue(queue_t* q);
+pcb_t dequeue(queue_t *cola);
 
-int is_empty(queue_t* q);
+int isEmpty(queue_t *cola);
 
 #endif

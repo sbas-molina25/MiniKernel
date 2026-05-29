@@ -2,48 +2,59 @@
 #include <stdlib.h>
 #include "../include/queue.h"
 
-void init_queue(queue_t *q) {
-    q->front = NULL;
-    q->rear = NULL;
-    q->size = 0;
+//inicializa la cola
+void iniciarCola(queue_t *cola)
+{
+    cola->inicio = NULL;
+    cola->final = NULL;
+    cola->size = 0;
 }
 
-void enqueue(queue_t *q, pcb_t process) {
-    node_t *new_node = (node_t *)malloc(sizeof(node_t));
-    new_node->process = process;
-    new_node->next = NULL;
+// Inserta un proceso al final de la cola 
+void enqueue(queue_t *cola, pcb_t proceso)
+{
+    nodo_t *nuevoNodo = (nodo_t *)malloc(sizeof(nodo_t));
+    nuevoNodo->proceso = proceso;
+    nuevoNodo->siguiente = NULL;
 
-    if (q->rear == NULL) {
-        q->front = new_node;
-        q->rear = new_node;
+    if (cola->final == NULL)
+    {
+        cola->inicio = nuevoNodo;
+        cola->final = nuevoNodo;
     }
-    else{
-        q->rear->next = new_node;
-        q->rear = new_node;
+    else
+    {
+        cola->final->siguiente = nuevoNodo;
+        cola->final = nuevoNodo;
     }
-    q->size++;
+    cola->size++;
 }
 
-pcb_t dequeue(queue_t *q) {
-    pcb_t empty_process;
-    empty_process.pid = -1;
+// saca el proceso al inicio de la cola
+pcb_t dequeue(queue_t *cola)
+{
+    pcb_t emptyProcess;
+    emptyProcess.pid = -1;
 
-    if (q->front == NULL) {
-        return empty_process;
+    if (cola->inicio == NULL) // revisa si la cola esta vacia
+    {
+        return emptyProcess;
     }
-    node_t *temp = q->front;
-    pcb_t process = temp->process;
-    q->front = q->front->next;
+    nodo_t *temp = cola->inicio;
+    pcb_t process = temp->proceso;
+    cola->inicio = cola->inicio->siguiente;
 
-    if (q->front == NULL) {
-        q->rear = NULL;
+    if (cola->inicio == NULL) // revisa si ya no quedan nodos
+    {
+        cola->final = NULL;
     }
 
     free(temp);
-    q->size--;
+    cola->size--;
     return process;
 }
 
-int is_empty(queue_t *q) {
-    return q->front == NULL;
+int isEmpty(queue_t *cola)
+{
+    return cola->inicio == NULL;
 }

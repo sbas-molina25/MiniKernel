@@ -9,33 +9,34 @@
 #include "../include/sync.h"
 #include "../include/metrics.h"
 
-#define N_CPUS 2
+#define numCPUS 2
 
-queue_t ready_queue;
-pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t queue_cond = PTHREAD_COND_INITIALIZER;
+queue_t readyQueue;
+pthread_mutex_t mutexQueue = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t condicionQueue = PTHREAD_COND_INITIALIZER;
 
-int global_pid = 1;
+int pidGlobal = 1;
 
 void *cpu_run(void *arg);
 
-void *process_generator(void *arg)
+// genera procesos aleatorios y los agrega a la cola de listos
+void *generadorProcesos(void *arg)
 {
     while (1)
     {
-        sleep(rand() % 3 + 1);
-        pcb_t process;
-        process.pid = global_pid++;
-        process.burst_time = rand() % 10 + 1;
-        process.remaining_time = process.burst_time;
-        process.priority = rand() % 5;
-        process.arrival_time = time(NULL);
-        process.state = READY;
-        pthread_mutex_lock(&queue_mutex);
-        enqueue(&ready_queue, process);
-        printf("(GENERADOR) Proceso %d creado (burst=%d)\n", process.pid, process.burst_time);
-        pthread_cond_signal(&queue_cond);
-        pthread_mutex_unlock(&queue_mutex);
+        sleep(rand() % 3 + 1); // espera un tiempo random
+        pcb_t proceso;
+        proceso.pid = pidGlobal++;
+        proceso.burst_time = rand() % 10 + 1;
+        proceso.remaining_time = proceso.burst_time;
+        proceso.priority = rand() % 5;
+        proceso.arrival_time = time(NULL);
+        proceso.state = READY;
+        pthread_mutex_lock(&mutexQueue); // bloquea la cola
+        enqueue(&readyQueue, proceso);
+        printf("GENERADOR: Proceso %d creado con burst = %d\n", proceso.pid, proceso.burst_time);
+        pthread_cond_signal(&condicionQueue); // despierta una cpu
+        pthread_mutex_unlock(&mutexQueue);    // desbloquea la cola
     }
     return NULL;
 }
@@ -43,25 +44,25 @@ void *process_generator(void *arg)
 int main()
 {
     srand(time(NULL));
-    init_queue(&ready_queue);
-    pthread_t generator_thread;
-    pthread_t cpu_threads[N_CPUS];
-    pthread_t metrics_tid;
-    pthread_create(&generator_thread, NULL, process_generator, NULL);
+    iniciarCola(&readyQueue);
+    pthread_t threadGenerador;
+    pthread_t threadCpu[numCPUS];
+    pthread_t threadMetrics;
+    pthread_create(&threadGenerador, NULL, generadorProcesos, NULL); // crea un hilo generador de procesos
 
-    for (int i = 0; i < N_CPUS; i++)
+    for (int i = 0; i < numCPUS; i++) // se crean los cpus
     {
-        int *id = malloc(sizeof(int));
-        *id = i + 1;
-        pthread_create(&cpu_threads[i], NULL, cpu_run, id);
+        int *idCPU = malloc(sizeof(int));
+        *idCPU = i + 1;
+        pthread_create(&threadCpu[i], NULL, cpu_run, idCPU);
     }
-    pthread_create(&metrics_tid, NULL, metrics_thread, NULL);
-    pthread_join(generator_thread, NULL);
+    pthread_create(&threadMetrics, NULL, metrics_thread, NULL); // crea hilos de metricas
+    pthread_join(threadGenerador, NULL);                        // espera a que termine el generador
 
-    for (int i = 0; i < N_CPUS; i++)
+    for (int i = 0; i < numCPUS; i++) // espera a que terminen los cpus
     {
-        pthread_join(cpu_threads[i], NULL);
+        pthread_join(threadCpu[i], NULL);
     }
-    pthread_join(metrics_tid, NULL);
+    pthread_join(threadMetrics, NULL); // espera a que terminen las metricas
     return 0;
 }

@@ -3,7 +3,7 @@
 
 #include <pthread.h>
 
-extern pthread_mutex_t queue_mutex;
-extern pthread_cond_t queue_cond;
+extern pthread_mutex_t mutexQueue;
+extern pthread_cond_t condicionQueue;
 
 #endif

@@ -5,7 +5,8 @@
 #define RUNNING 1
 #define FINISHED 2
 
-typedef struct {
+typedef struct
+{
     int pid;
     int burst_time;
     int remaining_time;
